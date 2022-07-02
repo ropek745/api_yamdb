@@ -1,7 +1,8 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import serializers
-from rest_framework.exceptions import ParseError, ValidationError
+from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
@@ -74,7 +75,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if value == 'me':
-            raise serializers.ValidationError('Неккоректный юзернейм "me"')
+            raise ValidationError('Неккоректный юзернейм "me"')
         return value
 
 
@@ -85,30 +86,25 @@ class ReviewSerializer(serializers.ModelSerializer):
     title = serializers.SlugRelatedField(
         slug_field='name', read_only=True
     )
+    score = serializers.IntegerField(min_value=1, max_value=10)
 
     class Meta:
         fields = '__all__'
         model = Review
 
     def validate(self, data):
-        title_id = (
-            self.context['request'].parser_context['kwargs']['title_id']
-        )
-        title = get_object_or_404(Title, pk=title_id)
-        user = self.context['request'].user
-        if (
-            self.context['request'].method == 'POST'
-            and Review.objects.filter(author=user, title=title).exists()
-        ):
-            raise ParseError(
-                'Возможен только один отзыв на произведение!'
+        if self.context['request'].method == 'POST':
+            title_id = (
+                self.context['request'].parser_context[
+                    'kwargs'].get('title_id')
             )
+            title = get_object_or_404(Title, pk=title_id)
+            user = self.context['request'].user
+            if Review.objects.filter(author=user, title=title).exists():
+                raise ValidationError(
+                    'Возможен только один отзыв на произведение!'
+                )
         return data
-
-    def validate_score(self, value):
-        if value not in range(1, 11):
-            raise serializers.ValidationError('Неверное значение оценки')
-        return value
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -153,13 +149,20 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = ('name', 'year', 'description', 'genre', 'category', 'id')
 
+    def validate_year(self, value):
+        year_today = timezone.now().year
+        if value > year_today:
+            raise ValidationError('Проверьте год создания!')
+        return value
+
 
 class GetTitleSerializer(serializers.ModelSerializer):
-    rating = serializers.IntegerField(read_only=True)
-    category = CategorySerializer(read_only=True)
-    genre = GenreSerializer(many=True, read_only=True)
+    rating = serializers.IntegerField()
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'genre', 'category',
-                  'rating', 'id')
+        fields = '__all__'
+        read_only_fields = ('name', 'year', 'description', 'genre', 'category',
+                            'rating', 'id')
