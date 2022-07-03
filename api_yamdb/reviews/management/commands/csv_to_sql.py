@@ -20,10 +20,10 @@ class Command(BaseCommand):
             encoding='UTF-8'
         ) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
             for row in csv_reader:
-                pk = int(row[0])
                 Category.objects.create(
-                    id=pk,
+                    id=row[0],
                     name=row[1],
                     slug=row[2]
                 )
@@ -33,6 +33,7 @@ class Command(BaseCommand):
             encoding='UTF-8'
         ) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
             for row in csv_reader:
                 review, _ = Review.objects.get_or_create(id=row[1])
                 Comment.objects.create(
@@ -48,6 +49,7 @@ class Command(BaseCommand):
             encoding='UTF-8'
         ) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
             for row in csv_reader:
                 Genre.objects.create(id=row[0], name=row[1], slug=row[2])
         with open(
@@ -56,6 +58,7 @@ class Command(BaseCommand):
             encoding='UTF-8'
         ) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
             for row in csv_reader:
                 title, _ = Title.objects.get_or_create(id=row[1])
                 genre, _ = Genre.objects.get_or_create(id=row[2])
@@ -66,6 +69,7 @@ class Command(BaseCommand):
             encoding='UTF-8'
         ) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
             for row in csv_reader:
                 title, _ = Title.objects.get_or_create(id=row[1])
                 Review.objects.create(
@@ -82,6 +86,7 @@ class Command(BaseCommand):
             encoding='UTF-8'
         ) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
             for row in csv_reader:
                 category, _ = Category.objects.get_or_create(id=row[3])
                 Title.objects.create(
@@ -96,6 +101,7 @@ class Command(BaseCommand):
             encoding='UTF-8'
         ) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
             for row in csv_reader:
                 User.objects.create(
                     id=row[0],
