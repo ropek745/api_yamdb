@@ -7,15 +7,15 @@ from rest_framework import filters, mixins, viewsets, status
 from rest_framework.decorators import api_view, action
 from rest_framework.pagination import (LimitOffsetPagination,
                                        PageNumberPagination)
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title, User
 from .filters import TitlesFilter
-from .permissions import (AdminOnly, IsAdminOrReadOnly,
-                          OnlyOwnAccount,
-                          AuthorAndStaffOrReadOnly)
+from .permissions import (AdminOnly, AdminOrReadOnly,
+                          AuthorOrStaffOrReadOnly)
 from .serializers import (CategorySerializer,
                           CommentSerializer,
                           GenreSerializer,
@@ -46,7 +46,7 @@ def signup(request):
     user = User.objects.get(username=request.data['username'],
                             email=request.data['email'])
     conformation_code = default_token_generator.make_token(user)
-    send_mail(f'Hello, {str(user.username)}! Your code is here!',
+    send_mail(f'Привет, {str(user.username)}! Твой код здесь!',
               conformation_code,
               ['admin@email.com'],
               [request.data['email']],
@@ -88,7 +88,7 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
 
     @action(detail=False, methods=['get', 'patch'],
-            permission_classes=(OnlyOwnAccount, IsAuthenticated))
+            permission_classes=(IsAuthenticated, ))
     def me(self, request):
         user = get_object_or_404(User, username=self.request.user.username)
         if request.method == 'GET':
@@ -108,7 +108,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (AuthorAndStaffOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrStaffOrReadOnly)
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -124,7 +124,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (AuthorAndStaffOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrStaffOrReadOnly)
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
@@ -140,7 +140,7 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (AdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
     lookup_field = "slug"
@@ -150,7 +150,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (AdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
     lookup_field = "slug"
@@ -160,7 +160,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = GetTitleSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = TitlesFilter
 
