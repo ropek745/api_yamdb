@@ -20,7 +20,10 @@ pip install -r requirements.txt
 ```
 ### 4. Выполнить миграции. ###
 ```
-python manage.py runserver
+python manage.py makemigrations
+```
+```
+python manage.py migrate
 ```
 ### 5. Запустить проект. ###
 ```
