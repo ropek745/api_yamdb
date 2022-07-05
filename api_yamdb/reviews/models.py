@@ -4,17 +4,18 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 from .validators import validate_year
 
+USER = 'user'
+MODERATOR = 'moderator'
+ADMIN = 'admin'
+
+ROLES = (
+    (USER, 'Пользователь'),
+    (MODERATOR, 'Модератор'),
+    (ADMIN, 'Админ'),
+)
+
 
 class User(AbstractUser):
-    USER = 'user'
-    MODERATOR = 'moderator'
-    ADMIN = 'admin'
-
-    ROLES = (
-        (USER, 'user'),
-        (MODERATOR, 'moderator'),
-        (ADMIN, 'admin'),
-    )
 
     bio = models.TextField(
         blank=True,
@@ -27,14 +28,14 @@ class User(AbstractUser):
         null=False,
         verbose_name='Имя'
     )
-    first_name = models.TextField(
+    last_name = models.TextField(
         max_length=150,
         blank=True,
         null=False,
         verbose_name='Фамилия'
     )
     role = models.CharField(
-        max_length=20,
+        max_length=max(len(role) for role, _ in ROLES),
         choices=ROLES,
         default=USER,
         verbose_name='Роль'
@@ -44,7 +45,7 @@ class User(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=150,
         null=True,
-        unique=True
+        unique=True,
     )
     confirmation_code = models.CharField(
         'Код подтверждения',
@@ -52,23 +53,23 @@ class User(AbstractUser):
         null=True
     )
 
-    USERNAME_FIELDS = 'email'
     REQUIRED_FIELDS = ['email']
-
-    def __str__(self):
-        return self.username
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN or self.is_superuser
+        return self.role == ADMIN or self.is_staff
 
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return self.role == MODERATOR
 
-    @property
-    def is_user(self):
-        return self.role == self.USER
+    class Meta:
+        ordering = ["username", ]
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+
+    def __str__(self):
+        return self.username
 
 
 class Title(models.Model):

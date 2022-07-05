@@ -1,7 +1,9 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
 from django.core.mail import send_mail
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
+from django.utils.crypto import get_random_string
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, viewsets, status
 from rest_framework.decorators import api_view, action
@@ -40,17 +42,24 @@ class ListCreateDestroyViewSet(
 def signup(request):
     serializer = SignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    if not User.objects.filter(username=request.data['username'],
-                               email=request.data['email']).exists():
-        serializer.save()
-    user = User.objects.get(username=request.data['username'],
-                            email=request.data['email'])
-    conformation_code = default_token_generator.make_token(user)
-    send_mail(f'Привет, {str(user.username)}! Твой код здесь!',
-              conformation_code,
-              ['admin@email.com'],
-              [request.data['email']],
-              fail_silently=True)
+    try:
+        user, _ = User.objects.get_or_create(
+            email=serializer.validated_data.get('email'),
+            username=serializer.validated_data.get('username'),
+        )
+    except IntegrityError:
+        return Response(
+            'Данный email или username уже занят',
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    user.confirmation_code = get_random_string(length=6)
+    send_mail(
+        subject='Код регистрации на сервисе YaMDb',
+        message='Код подтверждения: {user.confirmation_code}',
+        from_email='webmaster@localhost',
+        recipient_list=[user.email, ],
+    )
+    user.save()
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
