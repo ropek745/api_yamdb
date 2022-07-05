@@ -11,8 +11,9 @@ from .validators import validate_username
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=254, required=True,
-                                   validators=[UniqueValidator(queryset=User.objects.all())])
+    email = serializers.EmailField(
+        max_length=254, required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())])
     username = serializers.CharField(max_length=150, required=True,
                                      validators=[validate_username])
 
@@ -44,8 +45,9 @@ class GetTokenSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=254, allow_blank=False,
-                                   validators=[UniqueValidator(queryset=User.objects.all())])
+    email = serializers.EmailField(
+        max_length=254, allow_blank=False,
+        validators=[UniqueValidator(queryset=User.objects.all())])
     username = serializers.CharField(max_length=150, allow_blank=False,
                                      validators=[validate_username])
 
