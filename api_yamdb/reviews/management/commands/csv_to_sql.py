@@ -124,9 +124,9 @@ class Command(BaseCommand):
                         title=title,
                         text=row[2],
                         author=author,
-                        score=row[4],
-                        pub_date=row[5]
+                        score=row[4]
                     )
+                    Review.objects.filter(pk=row[0]).update(pub_date=row[5])
         except FileNotFoundError:
             print(f'Файл {filename} не найден')
         filename = 'static/data/comments.csv'
@@ -145,8 +145,8 @@ class Command(BaseCommand):
                         id=row[0],
                         review=review,
                         text=row[2],
-                        author=author,
-                        pub_date=row[4]
+                        author=author
                     )
+                    Comment.objects.filter(pk=row[0]).update(pub_date=row[4])
         except FileNotFoundError:
             print(f'Файл {filename} не найден')
