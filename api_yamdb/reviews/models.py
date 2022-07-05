@@ -27,7 +27,7 @@ class User(AbstractUser):
         null=False,
         verbose_name='Имя'
     )
-    first_name = models.TextField(
+    last_name = models.TextField(
         max_length=150,
         blank=True,
         null=False,
@@ -39,7 +39,11 @@ class User(AbstractUser):
         default=USER,
         verbose_name='Роль'
     )
-    email = models.EmailField(verbose_name='Почта', unique=True)
+    email = models.EmailField(
+        verbose_name='Почта',
+        unique=True,
+        max_length=254
+    )
     username = models.CharField(
         verbose_name='Имя пользователя',
         max_length=150,
@@ -72,34 +76,33 @@ class User(AbstractUser):
 
 
 class Title(models.Model):
-    name = models.CharField(
-        max_length=200,
-        verbose_name='Название произведения'
+    name = models.TextField(
+        verbose_name='Название'
     )
     year = models.IntegerField(
         validators=[validate_year],
-        verbose_name='Дата выхода'
+        verbose_name='Год выпуска'
     )
     description = models.TextField(
         null=True,
         blank=True,
-        verbose_name='Описание произведения'
+        verbose_name='Описание'
     )
     genre = models.ManyToManyField(
         'Genre',
         through='GenreTitle',
-        verbose_name='Жанр произведения'
+        verbose_name='Жанр'
     )
     category = models.ForeignKey(
         'Category',
         on_delete=models.SET_NULL,
         related_name='titles',
         null=True,
-        verbose_name='Категория произведения'
+        verbose_name='Категория'
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
@@ -143,7 +146,7 @@ class ReviewCommentBase(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.text[:15]
@@ -184,41 +187,33 @@ class Comment(ReviewCommentBase):
         verbose_name_plural = 'Комментарии'
 
 
-class Category(models.Model):
+class CategoryGenreBase(models.Model):
     name = models.CharField(
-        max_length=200,
-        verbose_name='Название категории'
+        max_length=256,
+        verbose_name='Название'
     )
     slug = models.SlugField(
-        max_length=100,
+        max_length=50,
         unique=True,
         verbose_name='Идентификатор'
     )
 
     class Meta:
-        ordering = ['name']
-        verbose_name = 'Название категории'
+        abstract = True
+        ordering = ('name',)
+        verbose_name = 'Название'
+
+    def __str__(self):
+        return self.name
+
+
+class Category(CategoryGenreBase):
+
+    class Meta:
         verbose_name_plural = 'Категории'
 
-    def __str__(self):
-        return self.name
 
-
-class Genre(models.Model):
-    name = models.CharField(
-        max_length=200,
-        verbose_name='Название жанра'
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True,
-        verbose_name='Идентификатор'
-    )
+class Genre(CategoryGenreBase):
 
     class Meta:
-        ordering = ['name']
-        verbose_name = 'Название жанра'
         verbose_name_plural = 'Жанры'
-
-    def __str__(self):
-        return self.name
