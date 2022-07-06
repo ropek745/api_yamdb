@@ -20,8 +20,9 @@ from reviews.models import Category, Genre, Review, Title, User
 from .filters import TitlesFilter
 from .permissions import AdminOnly, AdminOrReadOnly, AuthorOrStaffOrReadOnly
 from .serializers import (
-    CategorySerializer, CommentSerializer, GenreSerializer, GetTitleSerializer,
-    ReviewSerializer, TitleSerializer, SignUpSerializer, GetTokenSerializer, UserSerializer
+    CategorySerializer, CommentSerializer, GenreSerializer,
+    GetTitleSerializer, ReviewSerializer, TitleSerializer,
+    SignUpSerializer, GetTokenSerializer, UserSerializer
 )
 
 
