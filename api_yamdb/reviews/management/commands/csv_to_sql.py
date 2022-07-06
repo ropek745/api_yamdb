@@ -8,7 +8,9 @@ from reviews.models import (
 
 
 class Command(BaseCommand):
-    def handle(self, *args, **options):
+    def handle(  # noqa: C901
+            self, *args, **options
+    ):
         filename = 'static/data/users.csv'
         try:
             with open(
