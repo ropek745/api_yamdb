@@ -1,3 +1,4 @@
+from re import A
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
 from django.core.mail import send_mail
@@ -5,7 +6,7 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, viewsets, status
+from rest_framework import filters, mixins, viewsets, status, generics
 from rest_framework.decorators import api_view, action
 from rest_framework.pagination import (LimitOffsetPagination,
                                        PageNumberPagination)
@@ -147,14 +148,9 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     lookup_field = "slug"
 
 
-class GenreViewSet(ListCreateDestroyViewSet):
+class GenreViewSet(CategoryViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    pagination_class = LimitOffsetPagination
-    permission_classes = (AdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ("name",)
-    lookup_field = "slug"
 
 
 class TitleViewSet(viewsets.ModelViewSet):
