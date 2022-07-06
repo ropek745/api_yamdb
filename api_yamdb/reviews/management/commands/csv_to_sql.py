@@ -10,13 +10,13 @@ from reviews.models import (
 class Command(BaseCommand):
     help = 'Наполнение БД из файлов CSV'
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: C901
         filename = 'static/data/users.csv'
         try:
             with open(
-                filename,
-                'r',
-                encoding='UTF-8'
+                    filename,
+                    'r',
+                    encoding='UTF-8'
             ) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 next(csv_reader)
@@ -35,9 +35,9 @@ class Command(BaseCommand):
         filename = 'static/data/category.csv'
         try:
             with open(
-                filename,
-                'r',
-                encoding='UTF-8'
+                    filename,
+                    'r',
+                    encoding='UTF-8'
             ) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 next(csv_reader)
@@ -52,9 +52,9 @@ class Command(BaseCommand):
         filename = 'static/data/genre.csv'
         try:
             with open(
-                filename,
-                'r',
-                encoding='UTF-8'
+                    filename,
+                    'r',
+                    encoding='UTF-8'
             ) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 next(csv_reader)
@@ -69,9 +69,9 @@ class Command(BaseCommand):
         filename = 'static/data/titles.csv'
         try:
             with open(
-                filename,
-                'r',
-                encoding='UTF-8'
+                    filename,
+                    'r',
+                    encoding='UTF-8'
             ) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 next(csv_reader)
@@ -88,9 +88,9 @@ class Command(BaseCommand):
         filename = 'static/data/genre_title.csv'
         try:
             with open(
-                filename,
-                'r',
-                encoding='UTF-8'
+                    filename,
+                    'r',
+                    encoding='UTF-8'
             ) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 next(csv_reader)
@@ -107,9 +107,9 @@ class Command(BaseCommand):
         filename = 'static/data/review.csv'
         try:
             with open(
-                filename,
-                'r',
-                encoding='UTF-8'
+                    filename,
+                    'r',
+                    encoding='UTF-8'
             ) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 next(csv_reader)
@@ -129,9 +129,9 @@ class Command(BaseCommand):
         filename = 'static/data/comments.csv'
         try:
             with open(
-                filename,
-                'r',
-                encoding='UTF-8'
+                    filename,
+                    'r',
+                    encoding='UTF-8'
             ) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 next(csv_reader)
