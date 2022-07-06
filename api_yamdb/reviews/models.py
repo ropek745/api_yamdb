@@ -8,6 +8,11 @@ USER = 'user'
 MODERATOR = 'moderator'
 ADMIN = 'admin'
 
+USERNAME_LENGTH = 150
+EMAIL_LENGTH = 254
+CONFIRMATION_CODE_LENGTH = 6
+
+
 ROLES = (
     (USER, 'Пользователь'),
     (MODERATOR, 'Модератор'),
@@ -43,17 +48,17 @@ class User(AbstractUser):
     email = models.EmailField(
         verbose_name='Почта',
         unique=True,
-        max_length=254
+        max_length=EMAIL_LENGTH
     )
     username = models.CharField(
         verbose_name='Имя пользователя',
-        max_length=150,
+        max_length=USERNAME_LENGTH,
         null=True,
         unique=True,
     )
     confirmation_code = models.CharField(
         'Код подтверждения',
-        max_length=100,
+        max_length=CONFIRMATION_CODE_LENGTH,
         null=True
     )
 

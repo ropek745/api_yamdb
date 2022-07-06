@@ -50,14 +50,14 @@ def signup(request):
         )
     except IntegrityError:
         return Response(
-            'Данный email или username уже занят',
+            'Этот email или username уже занят',
             status=status.HTTP_400_BAD_REQUEST
         )
     user.confirmation_code = get_random_string(length=6)
     send_mail(
-        subject='Код регистрации на сервисе YaMDb',
+        subject='Код регистрации',
         message='Код подтверждения: {user.confirmation_code}',
-        from_email='webmaster@localhost',
+        from_email='yamdb@localhost',
         recipient_list=[user.email, ],
     )
     user.save()
@@ -98,7 +98,7 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
 
     @action(detail=False, methods=['get', 'patch'],
-            permission_classes=(IsAuthenticated, ))
+            permission_classes=(IsAuthenticated, ), url_path='me')
     def me(self, request):
         user = self.request.user
         if request.method == 'GET':

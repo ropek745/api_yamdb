@@ -4,82 +4,27 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueValidator
 
-from reviews.models import Category, Comment, Genre, Review, Title, User
-from .validators import validate_username
+from reviews.models import Category, Comment, Genre, Review, Title, User, USERNAME_LENGTH, EMAIL_LENGTH, CONFIRMATION_CODE_LENGTH
+from .validators import UserValidator
 
 
-class SignUpSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        max_length=254, required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())])
-    username = serializers.CharField(max_length=150, required=True,
-                                     validators=[validate_username])
-
-    class Meta:
-        model = User
-        fields = ('username', 'email')
-
-    def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError('Неккоректный юзернейм "me"')
-        return value
+class SignUpSerializer(serializers.Serializer, UserValidator):
+    username = serializers.CharField(max_length=USERNAME_LENGTH)
+    email = serializers.EmailField(max_length=EMAIL_LENGTH)
 
 
 class GetTokenSerializer(serializers.Serializer):
-    confirmation_code = serializers.CharField(allow_blank=False)
-    username = serializers.CharField(max_length=150, allow_blank=False,
-                                     validators=[validate_username])
-
-    class Meta:
-        model = User
-        fields = ('username', 'confirmation_code')
-
-    def validate(self, data):
-        user = get_object_or_404(User, username=data['username'])
-        confirmation_code = default_token_generator.make_token(user)
-        if str(confirmation_code) != data['confirmation_code']:
-            raise ValidationError('Неверный код подтверждения')
-        return data
+    username = serializers.CharField(max_length=USERNAME_LENGTH)
+    confirmation_code = serializers.CharField(max_length=CONFIRMATION_CODE_LENGTH)
 
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        max_length=254, allow_blank=False,
-        validators=[UniqueValidator(queryset=User.objects.all())])
-    username = serializers.CharField(max_length=150, allow_blank=False,
-                                     validators=[validate_username])
-
     class Meta:
         model = User
         fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'bio',
-            'role'
+            'username', 'first_name', 'last_name', 'email', 'role', 'bio'
         )
-
-
-class AdminUserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'bio',
-            'role'
-        )
-
-    def validate_username(self, value):
-        if value == 'me':
-            raise ValidationError('Неккоректный юзернейм "me"')
-        return value
 
 
 class ReviewSerializer(serializers.ModelSerializer):
