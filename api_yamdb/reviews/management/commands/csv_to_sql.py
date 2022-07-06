@@ -8,9 +8,7 @@ from reviews.models import (
 
 
 class Command(BaseCommand):
-    help = 'Наполнение БД из файлов CSV'
-
-    def handle(self, *args, **options):  # noqa: C901
+    def handle(self, *args, **options):
         filename = 'static/data/users.csv'
         try:
             with open(
