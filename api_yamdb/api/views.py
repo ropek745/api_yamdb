@@ -1,4 +1,3 @@
-from re import A
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
 from django.core.mail import send_mail
@@ -8,26 +7,18 @@ from django.utils.crypto import get_random_string
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, viewsets, status
 from rest_framework.decorators import api_view, action
-from rest_framework.pagination import (LimitOffsetPagination,
-                                       PageNumberPagination)
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title, User
 from .filters import TitlesFilter
-from .permissions import (AdminOnly, AdminOrReadOnly,
-                          AuthorOrStaffOrReadOnly)
-from .serializers import (CategorySerializer,
-                          CommentSerializer,
-                          GenreSerializer,
-                          GetTitleSerializer,
-                          ReviewSerializer,
-                          TitleSerializer,
-                          SignUpSerializer,
-                          GetTokenSerializer,
-                          UserSerializer)
+from .permissions import AdminOnly, AdminOrReadOnly, AuthorOrStaffOrReadOnly
+from .serializers import (
+    CategorySerializer, CommentSerializer, GenreSerializer, GetTitleSerializer,
+    ReviewSerializer, TitleSerializer, SignUpSerializer, GetTokenSerializer, UserSerializer
+)
 
 
 class ListCreateDestroyViewSet(

@@ -53,7 +53,6 @@ class User(AbstractUser):
     username = models.CharField(
         verbose_name='Имя пользователя',
         max_length=USERNAME_LENGTH,
-        null=True,
         unique=True,
     )
     confirmation_code = models.CharField(
