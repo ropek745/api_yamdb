@@ -119,4 +119,3 @@ class Command(BaseCommand):
                     author=author
                 )
                 Comment.objects.filter(pk=row[0]).update(pub_date=row[4])
-
