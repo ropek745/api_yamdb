@@ -1,4 +1,5 @@
 import os
+import re
 
 from datetime import timedelta
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -11,6 +12,9 @@ SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+
+USERNAME_SYMBOLS = re.compile(r'[\w.@+-@./+-]+')
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -46,9 +50,9 @@ INSTALLED_APPS = [
     # My apps
     'rest_framework',
     'django_filters',
+    'rest_framework_simplejwt',
     'reviews',
     'api',
-    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -113,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 

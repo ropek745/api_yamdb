@@ -16,14 +16,14 @@ class SignUpSerializer(serializers.Serializer, UserValidator):
     email = serializers.EmailField(max_length=EMAIL_LENGTH)
 
 
-class GetTokenSerializer(serializers.Serializer):
+class GetTokenSerializer(serializers.Serializer, UserValidator):
     username = serializers.CharField(max_length=USERNAME_LENGTH)
     confirmation_code = serializers.CharField(
         max_length=CONFIRMATION_CODE_LENGTH
     )
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer, UserValidator):
     class Meta:
         model = User
         fields = (
@@ -35,14 +35,11 @@ class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True
     )
-    title = serializers.SlugRelatedField(
-        slug_field='name', read_only=True
-    )
     score = serializers.IntegerField(min_value=1, max_value=10)
 
     class Meta:
-        fields = '__all__'
         model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
 
     def validate(self, data):
         if self.context['request'].method == 'POST':
@@ -104,7 +101,9 @@ class TitleSerializer(serializers.ModelSerializer):
     def validate_year(self, value):
         year_today = timezone.now().year
         if value > year_today:
-            raise ValidationError('Проверьте год создания!')
+            raise ValidationError(
+                f'Неверный год {value}. Проверьте год создания!'
+            )
         return value
 
 
@@ -115,6 +114,7 @@ class GetTitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = '__all__'
-        read_only_fields = ('name', 'year', 'description', 'genre', 'category',
-                            'rating', 'id')
+        read_only_fields = ('__all__',)
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category',
+        )
