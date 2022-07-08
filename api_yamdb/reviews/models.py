@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from api.validators import UserValidator, validate_year
+from .validators import UserValidator, validate_year
 
 USER = 'user'
 MODERATOR = 'moderator'
@@ -73,8 +73,8 @@ class User(AbstractUser, UserValidator):
 
     class Meta:
         ordering = ('username', )
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователь'
 
     def __str__(self):
         return self.username

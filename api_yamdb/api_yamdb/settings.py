@@ -14,7 +14,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 USERNAME_SYMBOLS = re.compile(r'[\w.@+-@./+-]+')
-YEAR_ERROR = 'Год не может быть больше текущего.'
 DEFAULT_FROM_EMAIL = 'admin@yamdb.com'
 
 REST_FRAMEWORK = {
@@ -48,12 +47,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'drf_yasg',
-    # My apps
     'rest_framework',
     'django_filters',
     'rest_framework_simplejwt',
-    'api',
     'reviews',
+    'api',
 ]
 
 MIDDLEWARE = [

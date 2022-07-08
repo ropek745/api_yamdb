@@ -21,7 +21,7 @@ from reviews.models import (
 )
 from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from .filters import TitlesFilter
-from .permissions import AdminOnly, AdminOrReadOnly, AuthorOrStaffOrReadOnly
+from .permissions import AdminOnly, AdminOrReadOnly, AuthorOrModeratorOrReadOnly
 from .serializers import (
     CategorySerializer, CommentSerializer, GenreSerializer,
     GetTitleSerializer, ReviewSerializer, TitleSerializer,
@@ -46,13 +46,13 @@ def signup(request):
             status=status.HTTP_400_BAD_REQUEST
         )
     user.confirmation_code = get_random_string(length=CONFIRMATION_CODE_LENGTH)
+    user.save()
     send_mail(
         subject='Код регистрации',
         message='Код подтверждения: {user.confirmation_code}',
         from_email=DEFAULT_FROM_EMAIL,
         recipient_list=[user.email, ],
     )
-    user.save()
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -66,7 +66,7 @@ def get_token(request):
     )
     confirmation_code = request.data['confirmation_code']
     if user.confirmation_code != serializer.validated_data.get(
-            'confirmation_code'
+        'confirmation_code'
     ):
         user.confirmation_code = ''
         return Response(INVALID_CODE, status=status.HTTP_400_BAD_REQUEST)
@@ -101,7 +101,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrStaffOrReadOnly)
+    permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrModeratorOrReadOnly)
 
     def get_object_title(self):
         return get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -118,7 +118,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrStaffOrReadOnly)
+    permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrModeratorOrReadOnly)
 
     def get_object_review(self):
         return get_object_or_404(Review, pk=self.kwargs.get('review_id'))

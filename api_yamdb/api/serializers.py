@@ -7,7 +7,7 @@ from reviews.models import (
     Category, Comment, Genre, Review, Title, User,
     USERNAME_LENGTH, EMAIL_LENGTH, CONFIRMATION_CODE_LENGTH
 )
-from api.validators import UserValidator, validate_year
+from reviews.validators import UserValidator, validate_year
 
 
 class SignUpSerializer(serializers.Serializer, UserValidator):
