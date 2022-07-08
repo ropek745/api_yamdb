@@ -1,4 +1,3 @@
-from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
 from django.core.mail import send_mail
 from django.db import IntegrityError
@@ -21,7 +20,9 @@ from reviews.models import (
 )
 from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from .filters import TitlesFilter
-from .permissions import AdminOnly, AdminOrReadOnly, AuthorOrModeratorOrReadOnly
+from .permissions import (
+    AdminOnly, AdminOrReadOnly, AuthorOrModeratorOrReadOnly
+)
 from .serializers import (
     CategorySerializer, CommentSerializer, GenreSerializer,
     GetTitleSerializer, ReviewSerializer, TitleSerializer,
@@ -98,7 +99,9 @@ class UserViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrModeratorOrReadOnly)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly, AuthorOrModeratorOrReadOnly
+    )
 
     def get_object_title(self):
         return get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -115,7 +118,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrModeratorOrReadOnly)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly, AuthorOrModeratorOrReadOnly
+    )
 
     def get_object_review(self):
         return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
@@ -162,7 +167,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = TitlesFilter
-    ordering_fields = ['name',]
+    ordering_fields = ['name', ]
 
     def get_serializer_class(self):
         if self.action in ("retrieve", "list"):
