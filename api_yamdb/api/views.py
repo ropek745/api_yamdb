@@ -27,15 +27,6 @@ from .serializers import (
 )
 
 
-class ListCreateDestroyViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
-):
-    pass
-
-
 @api_view(['POST'])
 def signup(request):
     serializer = SignUpSerializer(data=request.data)
@@ -131,23 +122,35 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, review_id=self.get_object_review().id)
 
 
-class CategoryViewSet(ListCreateDestroyViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    pagination_class = LimitOffsetPagination
+class CategoryGenreViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ("name",)
-    lookup_field = "slug"
+    pagination_class = LimitOffsetPagination
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
-class GenreViewSet(CategoryViewSet):
+class CategoryViewSet(CategoryGenreViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class GenreViewSet(CategoryGenreViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = (
+        Title.objects.prefetch_related('reviews').all().
+        annotate(rating=Avg('reviews__score')).
+        order_by('name')
+    )
     serializer_class = GetTitleSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (AdminOrReadOnly,)
@@ -159,10 +162,3 @@ class TitleViewSet(viewsets.ModelViewSet):
             return GetTitleSerializer
         return TitleSerializer
 
-    def get_queryset(self):
-        if self.action in ('list', 'retrieve'):
-            queryset = (Title.objects.prefetch_related('reviews').all().
-                        annotate(rating=Avg('reviews__score')).
-                        order_by('name'))
-            return queryset
-        return Title.objects.all()

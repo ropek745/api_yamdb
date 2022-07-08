@@ -1,5 +1,6 @@
 import re
 
+from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from api_yamdb.settings import USERNAME_SYMBOLS
@@ -22,3 +23,10 @@ class UserValidator:
                 )
             )
         return value
+
+
+def validate_year(value):
+    if value > timezone.now().year:
+        raise ValidationError(
+            f'{value} год еще не наступил!',
+        )

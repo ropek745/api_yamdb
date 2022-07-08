@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
@@ -8,7 +7,7 @@ from reviews.models import (
     Category, Comment, Genre, Review, Title, User,
     USERNAME_LENGTH, EMAIL_LENGTH, CONFIRMATION_CODE_LENGTH
 )
-from .validators import UserValidator
+from api.validators import UserValidator, validate_year
 
 
 class SignUpSerializer(serializers.Serializer, UserValidator):
@@ -69,10 +68,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('name', 'slug')
-        lookup_field = 'slug'
-        extra_kwargs = {
-            'url': {'lookup_field': 'slug'}
-        }
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -80,10 +75,6 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ('name', 'slug')
-        lookup_field = 'slug'
-        extra_kwargs = {
-            'url': {'lookup_field': 'slug'}
-        }
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -93,18 +84,11 @@ class TitleSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all()
     )
+    year = serializers.IntegerField(validators=[validate_year])
 
     class Meta:
         model = Title
         fields = ('name', 'year', 'description', 'genre', 'category', 'id')
-
-    def validate_year(self, value):
-        year_today = timezone.now().year
-        if value > year_today:
-            raise ValidationError(
-                f'Неверный год {value}. Проверьте год создания!'
-            )
-        return value
 
 
 class GetTitleSerializer(serializers.ModelSerializer):

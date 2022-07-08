@@ -14,6 +14,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 USERNAME_SYMBOLS = re.compile(r'[\w.@+-@./+-]+')
+YEAR_ERROR = 'Год не может быть больше текущего.'
 DEFAULT_FROM_EMAIL = 'admin@yamdb.com'
 
 REST_FRAMEWORK = {
