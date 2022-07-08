@@ -110,7 +110,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return self.get_object_title().reviews.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user, title=self.get_object_title())
+        serializer.save(
+            author=self.request.user, title=self.get_object_title()
+        )
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -125,7 +127,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         return self.get_object_review().comments.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user, review_id=self.get_object_review().id)
+        serializer.save(
+            author=self.request.user, review_id=self.get_object_review().id
+        )
 
 
 class CategoryGenreViewSet(
@@ -167,4 +171,3 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ("retrieve", "list"):
             return GetTitleSerializer
         return TitleSerializer
-
