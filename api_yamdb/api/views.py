@@ -16,7 +16,9 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Category, Genre, Review, Title, User, CONFIRMATION_CODE_LENGTH
+from reviews.models import (
+    Category, Genre, Review, Title, User, CONFIRMATION_CODE_LENGTH
+)
 from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from .filters import TitlesFilter
 from .permissions import AdminOnly, AdminOrReadOnly, AuthorOrStaffOrReadOnly
@@ -25,6 +27,8 @@ from .serializers import (
     GetTitleSerializer, ReviewSerializer, TitleSerializer,
     SignUpSerializer, GetTokenSerializer, UserSerializer
 )
+
+INVALID_CODE = 'Неверный код подтверждения.'
 
 
 @api_view(['POST'])
@@ -61,11 +65,14 @@ def get_token(request):
         username=serializer.validated_data.get('username')
     )
     confirmation_code = request.data['confirmation_code']
+    if user.confirmation_code != serializer.validated_data.get(
+            'confirmation_code'
+    ):
+        user.confirmation_code = ''
+        return Response(INVALID_CODE, status=status.HTTP_400_BAD_REQUEST)
     if default_token_generator.check_token(user, confirmation_code):
         response = {'token': str(RefreshToken.for_user(user).access_token)}
         return Response(response, status=status.HTTP_200_OK)
-    return Response(serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -103,7 +110,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return self.get_object_title().reviews.all()
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=self.get_object_title())
 
 
