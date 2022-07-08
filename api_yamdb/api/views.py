@@ -64,15 +64,12 @@ def get_token(request):
         User,
         username=serializer.validated_data.get('username')
     )
-    confirmation_code = request.data['confirmation_code']
-    if user.confirmation_code != serializer.validated_data.get(
-        'confirmation_code'
-    ):
-        user.confirmation_code = ''
-        return Response(INVALID_CODE, status=status.HTTP_400_BAD_REQUEST)
-    if default_token_generator.check_token(user, confirmation_code):
-        response = {'token': str(RefreshToken.for_user(user).access_token)}
-        return Response(response, status=status.HTTP_200_OK)
+    if (user.confirmation_code
+            == serializer.validated_data['confirmation_code']):
+        token = RefreshToken.for_user(user)
+        return Response(
+            {'token': str(token.access_token)}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -158,14 +155,14 @@ class GenreViewSet(CategoryGenreViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = (
         Title.objects.prefetch_related('reviews').all().
-        annotate(rating=Avg('reviews__score')).
-        order_by('name')
+        annotate(rating=Avg('reviews__score'))
     )
     serializer_class = GetTitleSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = TitlesFilter
+    ordering_fields = ['name',]
 
     def get_serializer_class(self):
         if self.action in ("retrieve", "list"):
