@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from .validators import validate_year
+from api.validators import UserValidator
 
 USER = 'user'
 MODERATOR = 'moderator'
@@ -20,7 +21,7 @@ ROLES = (
 )
 
 
-class User(AbstractUser):
+class User(AbstractUser, UserValidator):
 
     bio = models.TextField(
         blank=True,
@@ -72,7 +73,7 @@ class User(AbstractUser):
         return self.role == MODERATOR
 
     class Meta:
-        ordering = ("username", )
+        ordering = ('username', )
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
 
@@ -168,7 +169,7 @@ class Review(ReviewCommentBase):
         verbose_name='Оценка'
     )
 
-    class Meta:
+    class Meta(ReviewCommentBase.Meta):
         default_related_name = 'reviews'
         constraints = [
             models.UniqueConstraint(
@@ -186,7 +187,7 @@ class Comment(ReviewCommentBase):
         verbose_name='Отзыв'
     )
 
-    class Meta:
+    class Meta(ReviewCommentBase.Meta):
         default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
@@ -214,11 +215,13 @@ class CategoryGenreBase(models.Model):
 
 class Category(CategoryGenreBase):
 
-    class Meta:
+    class Meta(CategoryGenreBase.Meta):
+        verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
 class Genre(CategoryGenreBase):
 
-    class Meta:
+    class Meta(CategoryGenreBase.Meta):
+        verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'

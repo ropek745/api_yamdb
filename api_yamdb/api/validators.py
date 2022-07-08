@@ -2,20 +2,21 @@ import re
 
 from rest_framework.exceptions import ValidationError
 
-SYMBOLS = re.compile(r'[\w.@+-@./+-]+')
+from api_yamdb.settings import USERNAME_SYMBOLS
+
 SYMBOLS_ERROR = 'Недопустимые символы: {value}.'
 
 
 class UserValidator:
     def validate_username(self, value):
         if value == 'me':
-            raise ValidationError('Недопустимое имя пользователя!')
-        if not re.match(SYMBOLS, value):
+            raise ValidationError(f'Недопустимое имя пользователя !{value}')
+        if not re.match(USERNAME_SYMBOLS, value):
             raise ValidationError(
                 SYMBOLS_ERROR.format(
                     value=[
                         symbol for symbol in value if symbol not in ''.join(
-                            re.findall(SYMBOLS, value)
+                            re.findall(USERNAME_SYMBOLS, value)
                         )
                     ]
                 )

@@ -16,7 +16,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Category, Genre, Review, Title, User
+from reviews.models import Category, Genre, Review, Title, User, CONFIRMATION_CODE_LENGTH
 from .filters import TitlesFilter
 from .permissions import AdminOnly, AdminOrReadOnly, AuthorOrStaffOrReadOnly
 from .serializers import (
@@ -49,7 +49,7 @@ def signup(request):
             'Этот email или username уже занят',
             status=status.HTTP_400_BAD_REQUEST
         )
-    user.confirmation_code = get_random_string(length=6)
+    user.confirmation_code = get_random_string(length=CONFIRMATION_CODE_LENGTH)
     send_mail(
         subject='Код регистрации',
         message='Код подтверждения: {user.confirmation_code}',
