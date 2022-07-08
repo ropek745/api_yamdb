@@ -3,7 +3,9 @@
 Проект YaMDb собирает отзывы пользователей на произведения
 ## Технологии
 - Python 3.7
+- Djagon
 - Django REST Framework
+- SQLite3
 ## Как развернуть и запустить проект у себя? ##
 ### 1. Склонировать репозиторий в рабочее пространство: ###
 ```
@@ -19,9 +21,6 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 ### 4. Выполнить миграции. ###
-```
-python manage.py makemigrations
-```
 ```
 python manage.py migrate
 ```
@@ -67,6 +66,6 @@ python manage.py runserver
   ```
 
 ## Разработчики ##
-  - Роман Пекарев - ropek745
-  - Никита Цыбин - kellia1903
-  - Оксана Широкова - son13425
+  - Роман Пекарев - (https://github.com/ropek745)
+  - Никита Цыбин - (https://github.com/kellia1903)
+  - Оксана Широкова - (https://github.com/son13425)

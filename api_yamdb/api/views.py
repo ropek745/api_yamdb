@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title, User, CONFIRMATION_CODE_LENGTH
+from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from .filters import TitlesFilter
 from .permissions import AdminOnly, AdminOrReadOnly, AuthorOrStaffOrReadOnly
 from .serializers import (
@@ -53,31 +54,24 @@ def signup(request):
     send_mail(
         subject='Код регистрации',
         message='Код подтверждения: {user.confirmation_code}',
-        from_email='yamdb@localhost',
+        from_email=DEFAULT_FROM_EMAIL,
         recipient_list=[user.email, ],
     )
     user.save()
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-
-
 @api_view(['POST'])
 def get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user = get_object_or_404(User, username=request.data['username'])
+    user = get_object_or_404(
+        User,
+        username=serializer.validated_data.get('username')
+    )
     confirmation_code = request.data['confirmation_code']
     if default_token_generator.check_token(user, confirmation_code):
-        token = get_tokens_for_user(user)
-        response = {'token': str(token['access'])}
+        response = {'token': str(RefreshToken.for_user(user).access_token)}
         return Response(response, status=status.HTTP_200_OK)
     return Response(serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST)
@@ -111,13 +105,15 @@ class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrStaffOrReadOnly)
 
+    def get_object_title(self):
+        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
+
     def get_queryset(self):
-        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        return title.reviews.all()
+        return self.get_object_title().reviews.all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        serializer.save(author=self.request.user, title=title)
+        serializer.save(author=self.request.user, title=self.get_object_title())
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -125,13 +121,14 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrStaffOrReadOnly)
 
+    def get_object_review(self):
+        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        return review.comments.all()
+        return self.get_object_review().comments.all()
 
     def perform_create(self, serializer):
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        serializer.save(author=self.request.user, review_id=review.id)
+        serializer.save(author=self.request.user, review_id=self.get_object_review().id)
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
