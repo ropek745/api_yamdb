@@ -66,6 +66,6 @@ python manage.py runserver
   ```
 
 ## Разработчики ##
-  - Роман Пекарев - (https://github.com/ropek745)
-  - Никита Цыбин - (https://github.com/kellia1903)
-  - Оксана Широкова - (https://github.com/son13425)
+  - [Роман Пекарев](https://github.com/ropek745)
+  - [Никита Цыбин](https://github.com/kellia1903)
+  - [Оксана Широкова](https://github.com/son13425)
