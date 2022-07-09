@@ -29,8 +29,6 @@ from .serializers import (
     SignUpSerializer, GetTokenSerializer, UserSerializer
 )
 
-INVALID_CODE = 'Неверный код подтверждения.'
-
 
 @api_view(['POST'])
 def signup(request):
@@ -50,7 +48,7 @@ def signup(request):
     user.save()
     send_mail(
         subject='Код регистрации',
-        message='Код подтверждения: {user.confirmation_code}',
+        message=f'Код подтверждения: {user.confirmation_code}',
         from_email=DEFAULT_FROM_EMAIL,
         recipient_list=[user.email, ],
     )
@@ -63,7 +61,7 @@ def get_token(request):
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
         User,
-        username=serializer.validated_data.get('username')
+        username=serializer.validated_data.get['username']
     )
     if (user.confirmation_code
             == serializer.validated_data['confirmation_code']):
