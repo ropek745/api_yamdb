@@ -61,13 +61,16 @@ def get_token(request):
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
         User,
-        username=serializer.validated_data.get['username']
+        username=serializer.validated_data.get('username')
     )
-    if (user.confirmation_code
-            == serializer.validated_data['confirmation_code']):
+    if ((user.confirmation_code
+            == serializer.validated_data['confirmation_code'])
+            and user.confirmation_code):
         token = RefreshToken.for_user(user)
         return Response(
             {'token': str(token.access_token)}, status=status.HTTP_200_OK)
+    user.confirmation_code = ''
+    user.save()
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
