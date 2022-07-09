@@ -16,7 +16,7 @@ class UserValidator:
                 SYMBOLS_ERROR.format(
                     value=''.join(
                         symbol for symbol in value
-                        if not re.match(USERNAME_SYMBOLS, symbol)
+                        if not USERNAME_SYMBOLS.match(symbol)
                     )
                 )
             )
