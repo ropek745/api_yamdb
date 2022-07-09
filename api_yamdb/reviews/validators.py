@@ -1,24 +1,23 @@
-import re
-
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from api_yamdb.settings import USERNAME_SYMBOLS
 
 SYMBOLS_ERROR = 'Недопустимые символы: {value}'
+ERROR_NAME = 'Недопустимое имя пользователя {value}!'
 
 
 class UserValidator:
     def validate_username(self, value):
         if value == 'me':
-            raise ValidationError(f'Недопустимое имя пользователя {value}!')
-        if not re.match(USERNAME_SYMBOLS, value):
+            raise ValidationError(ERROR_NAME.format(value=ERROR_NAME))
+        if not USERNAME_SYMBOLS.match(value):
             raise ValidationError(
                 SYMBOLS_ERROR.format(
-                    value=''.join([
+                    value=''.join(
                         symbol for symbol in value
                         if not re.match(USERNAME_SYMBOLS, symbol)
-                    ])
+                    )
                 )
             )
         return value
