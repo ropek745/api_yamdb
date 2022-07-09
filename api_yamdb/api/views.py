@@ -165,7 +165,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = TitlesFilter
-    ordering_fields = ['name', ]
+    ordering_fields = ('name', )
 
     def get_serializer_class(self):
         if self.action in ("retrieve", "list"):
